@@ -23,6 +23,11 @@ public class BigBoid : MonoBehaviour
     public Vector3 arriveTarget;
     public float slowingDistance = 10;
 
+    public bool followPathEnabled = false;
+    public Transform followPathTransform;
+    public Vector3 followPathTarget;
+    public Path path;
+
 
     public void OnDrawGizmos()
     {
@@ -40,13 +45,6 @@ public class BigBoid : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(arriveTargetTransform.position, slowingDistance);
         }
-
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
     }
 
     public Vector3 Seek(Vector3 target)
@@ -68,6 +66,14 @@ public class BigBoid : MonoBehaviour
         return desired - velocity;
     }
 
+    public Vector3 FollowPath(Vector3 target)
+    {
+        Vector3 toTarget = target - transform.position;
+        Vector3 desired = toTarget.normalized * maxSpeed;
+
+        return (desired - velocity);
+    }
+
     public Vector3 CalculateForce()
     {
         Vector3 f = Vector3.zero;
@@ -87,6 +93,15 @@ public class BigBoid : MonoBehaviour
                 arriveTarget = arriveTargetTransform.position;                
             }
             f += Arrive(arriveTarget);
+        }
+
+        if (followPathEnabled)
+        {
+            if (followPathTransform != null)
+            {
+                followPathTarget = followPathTransform.position;
+            }
+            f += FollowPath(followPathTarget);
         }
 
         return f;
